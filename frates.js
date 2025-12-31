@@ -8,13 +8,22 @@ const TELEGRAM_CHAT_ID = '-1003583931439';
 let positiveFundingRates = new Map();
 
 // Function to send Telegram message
+// Function to send Telegram message
 function sendTelegramMessage(message) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
 
+    // Split message if it exceeds 4096 characters to avoid API errors
+    const MAX_LENGTH = 4096;
+    if (message.length > MAX_LENGTH) {
+        const chunks = message.match(new RegExp(`.{1,${MAX_LENGTH}}`, 'g'));
+        chunks.forEach(chunk => sendTelegramMessage(chunk));
+        return;
+    }
+
     const postData = JSON.stringify({
         chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'HTML'
+        text: message
+        // parse_mode removed to avoid errors with special characters and simplify
     });
 
     const options = {
@@ -23,13 +32,17 @@ function sendTelegramMessage(message) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Content-Length': postData.length
+            'Content-Length': Buffer.byteLength(postData) // Correctly calculate byte length for UTF-8 (emojis etc)
         }
     };
 
     const req = https.request(options, (res) => {
         if (res.statusCode !== 200) {
-            console.error(`Telegram API Error: ${res.statusCode}`);
+            console.error(`Telegram API Error: ${res.statusCode} - ${res.statusMessage}`);
+            res.setEncoding('utf8');
+            res.on('data', (chunk) => {
+                console.error(`Response Body: ${chunk}`);
+            });
         }
     });
 
