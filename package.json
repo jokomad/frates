@@ -2,10 +2,10 @@
     "name": "crypto-scanner-v2",
     "version": "1.0.0",
     "description": "Real-time crypto scanner with WebSocket updates",
-    "main": "short.js",
+    "main": "frates.js",
     "scripts": {
-        "start": "node short.js",
-        "dev": "node short.js"
+        "start": "node frates.js",
+        "dev": "node frates.js"
     },
     "dependencies": {
         "ws": "^8.17.0"
@@ -17,4 +17,5 @@
     "author": "",
     "license": "MIT",
     "private": true
+
 }
